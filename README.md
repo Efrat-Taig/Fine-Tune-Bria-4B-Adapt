@@ -42,6 +42,19 @@ pip install -qr https://huggingface.co/briaai/BRIA-4B-Adapt/resolve/main/require
 - Larger datasets improve model performance but require more training steps.
 
 ### 2. Data Format
+
+Store data in a folder containing images and a metadata.csv file with 
+captions. This CSV file should have the following columns: 
+-  file_name: The file name of each image. 
+- caption: The corresponding caption.
+
+The `metadata.csv` file should have:
+| file_name | caption |
+|-----------|---------|
+| image1.jpg | caption for image1 |
+| image2.jpg |  caption for image2  |
+
+
 Ensure your dataset follows this structure:
 ```
 /data_folder/
@@ -51,13 +64,6 @@ Ensure your dataset follows this structure:
 │   ├── ...
 ├── metadata.csv
 ```
-
-The `metadata.csv` file should have:
-| file_name | caption |
-|-----------|---------|
-| image1.jpg | A detailed caption for image1 |
-| image2.jpg | A description of image2 |
-
 ### 3. Image Considerations
 -  **image size:** Train on images around or larger than 1024x1024 pixels. Bria-4B-Adapt 
 was trained on multiple aspect ratios around this resolution. 
@@ -86,15 +92,27 @@ generate those same recurring concepts using the same prefix.
 
 ### 2. Configure Training Variables
 Modify `run_finetune.py` with the following parameters:
+
+
 ```python
-DATA_PATH = "/path/to/data_folder" # Path to the data folder (containing images and metadata.csv).
-CHECKPOINT_LOCAL_PATH = "./checkpoints" # Path to save the trained weights
-TRAIN_BATCH_SIZE = 3  # Adjust based on available VRAM # Default is 3. For 8-GPU machines, the effective batch size is 24
-GRADIENT_ACCUMULATION_STEPS = 1  # Increase to simulate a larger batch size # Default is 1. Increase this value to raise the  effective batch size without needing more VRAM, though this will slow down  training.
+ # Path to the data folder (containing images and metadata.csv).
+DATA_PATH = "/path/to/data_folder"
+
+# Path to save the trained weights
+CHECKPOINT_LOCAL_PATH = "./checkpoints"
+
+ # Default is 3. For 8-GPU machines, the effective batch size is 24
+TRAIN_BATCH_SIZE = 3  # Adjust based on available VRAM
+
+ # Default is 1. Increase this value to raise the  effective batch size without needing more VRAM, though this will slow down  training.
+GRADIENT_ACCUMULATION_STEPS = 1  # Increase to simulate a larger batch size
+
 MAX_TRAIN_STEPS = 3000  # Increase for larger datasets # Default is 3000. Increase for larger datasets (more than a  couple of thousand images)
 CHECKPOINTING_STEPS = 500  # Save model checkpoints every 500 steps
 WANDB_PROJECT = "Bria-4B-Finetune"  # (Optional) Weights & Biases tracking
 ```
+
+
 
 ### 3. Run Training
 Execute the following command to start training:
